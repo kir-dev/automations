@@ -46,7 +46,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: ./actions/infra-build-images@feat/build-docker-actions
+      - uses: ./actions/infra-build-images
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           namespace: ${{ env.DOCKER_NAMESPACE }}
