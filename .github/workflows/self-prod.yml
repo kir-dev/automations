@@ -1,14 +1,21 @@
-name: Deployment workflow
+name: Deployment
 
 on:
   push:
     branches:
       - main
-  pull_request:
-  workflow_call:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select the environment to deploy'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
 
 jobs:
-  staging:
+  depoy:
     runs-on: ubuntu-latest
 
     permissions:
@@ -17,9 +24,8 @@ jobs:
 
     strategy:
       matrix:
-        environment:
-          - staging
-          - production
+        environment: ${{ fromJson(
+          github.event_name == 'workflow_dispatch' && '[${{ inputs.environment }}]' || '["staging", "production"]') }}
       max-parallel: 1
 
     environment: ${{ matrix.environment }}
@@ -32,7 +38,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: kir-dev/automations/actions/infra-build-images@feat/build-docker-actions
+
+      - name: Log into registry ${{ env.DOCKER_REGISTRY }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.DOCKER_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ./actions/infra-build-images@feat/build-docker-actions
         with:
           registry: ${{ env.DOCKER_REGISTRY }}
           namespace: ${{ env.DOCKER_NAMESPACE }}

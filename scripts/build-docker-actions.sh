@@ -18,7 +18,7 @@ pushd $CONTEXT
 for FILE in *.Dockerfile
 do
   NAME=${FILE%.Dockerfile}
-  docker buildx build \
+  docker buildx build --load \
     --file "$FILE" \
     --tag "$DOCKER_REPO/$NAME:$TAG" \
     $EXTRA_ARGS \
@@ -26,6 +26,6 @@ do
 done
 
 echo '# Docker images' >> $GITHUB_STEP_SUMMARY
-docker images | grep "$DOCKER_REPO" >> $GITHUB_STEP_SUMMARY
+docker images "$DOCKER_REPO"/"$NAME"* >> $GITHUB_STEP_SUMMARY
 
 popd
