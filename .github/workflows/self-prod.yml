@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_call:
 
 jobs:
@@ -33,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: kir-dev/automations/actions/infra-build-images@feat/build-docker-actions
         with:
-          registry: ${{ env.DOCKER_NAMESPACE }}
+          registry: ${{ env.DOCKER_REGISTRY }}
           namespace: ${{ env.DOCKER_NAMESPACE }}
           docker-tag: ${{ env.DOCKER_TAG }}
           extra-args: --push ${{ env.DOCKER_EXTRA_ARGS }}
