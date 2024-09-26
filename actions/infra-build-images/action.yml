@@ -3,7 +3,6 @@ description: Automation Images Manager Action
 inputs:
   registry:
     required: true
-    default: 'ghcr.io'
     description: 'The docker registry to use'
   namespace:
     required: true
@@ -27,4 +26,4 @@ runs:
         ${{ inputs.command_path }}/build-docker-actions.sh \
           ${{ inputs.registry }}/${{ inputs.namespace }} \
           ${{ inputs.docker-tag }} \
-          '--push --cache-from type=gha,mode=max --cache-to type=gha,mode=max --label org.opencontainers.image.source=https://github.com/${{ github.repository }}'
+          '${{ inputs.extra-args }}'
