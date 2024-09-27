@@ -47,10 +47,10 @@ jobs:
       matrix:
         environment: ${{ fromJSON(needs.define-environment.outputs.environments) }}
 
-    environment: ${{ inputs.environment || matrix.environment }}
+    environment: ${{ matrix.environment }}
 
     env:
-      DOCKER_TAG: ${{ (inputs.environment || matrix.environment) == 'production' && 'latest' || 'edge' }}
+      DOCKER_TAG: ${{ (matrix.environment) == 'production' && 'latest' || 'edge' }}
       DOCKER_REGISTRY: ghcr.io
       DOCKER_NAMESPACE: ${{ github.repository_owner }}
       DOCKER_EXTRA_ARGS: --label org.opencontainers.image.source=https://github.com/${{ github.repository }} --cache-from type=gha,mode=max --cache-to type=gha,mode=max
