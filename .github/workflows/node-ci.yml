@@ -1,0 +1,104 @@
+name: Node CI
+
+on:
+  workflow_call:
+    # Inputs the workflow accepts.
+
+    inputs:
+      node-version:
+        type: string
+        description: "Node version"
+        required: true
+
+      package-manager:
+        type: string
+        description: "The package manager to use (npm or yarn)"
+        required: true
+
+      cache-lockfile-path:
+        type: string
+        description: "Path to the lockfile that will be used as cache key"
+        default: ""
+
+      working-directory-scripts:
+        type: string
+        description: "Working directory when running npm scripts"
+        default: "."
+
+      working-directory-install:
+        type: string
+        description: "Working directory when installing dependencies. default = working-directory-scripts"
+        default: ""
+
+      lint-script:
+        type: string
+        description: "Lint npm script name"
+        default: "lint"
+
+      pre-build-command:
+        type: string
+        description: "Pre build command"
+        default: "exit 0"
+
+      build-script:
+        type: string
+        description: "Build npm script name"
+        default: "build"
+
+      post-install-command:
+        type: string
+        description: "Post install command"
+        default: "exit 0"
+
+      test-script:
+        type: string
+        description: "Test npm script name"
+        default: "test"
+
+      skip-install:
+        type: boolean
+        description: "Skip install"
+        default: false
+      skip-lint:
+        type: boolean
+        description: "Skip lint"
+        default: false
+      skip-build:
+        type: boolean
+        description: "Skip build"
+        default: false
+      skip-test:
+        type: boolean
+        description: "Skip test"
+        default: false
+
+      build-artifacts:
+        type: string
+        description: "Build artifacts location (leave empty to disable uploading)"
+        default: ""
+
+jobs:
+  node-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Node CI
+        uses: ./actions/node-ci
+        with:
+          node-version: ${{ inputs.node-version }}
+          package-manager: ${{ inputs.package-manager }}
+          cache-lockfile-path: ${{ inputs.cache-lockfile-path }}
+          working-directory-scripts: ${{ inputs.working-directory-scripts }}
+          working-directory-install: ${{ inputs.working-directory-install }}
+          lint-script: ${{ inputs.lint-script }}
+          pre-build-command: ${{ inputs.pre-build-command }}
+          build-script: ${{ inputs.build-script }}
+          post-install-command: ${{ inputs.post-install-command }}
+          test-script: ${{ inputs.test-script }}
+          skip-install: ${{ inputs.skip-install }}
+          skip-lint: ${{ inputs.skip-lint }}
+          skip-build: ${{ inputs.skip-build }}
+          skip-test: ${{ inputs.skip-test }}
+          build-artifacts: ${{ inputs.build-artifacts }}

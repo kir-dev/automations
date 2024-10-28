@@ -1,0 +1,128 @@
+name: "Node CI"
+description: "Run install, lint, build and test"
+
+inputs:
+  node-version:
+    description: "Node version"
+    required: true
+
+  package-manager:
+    description: "The package manager to use (npm or yarn)"
+    required: true
+
+  cache-lockfile-path:
+    description: "Path to the lockfile that will be used as cache key"
+    default: ""
+
+  working-directory-scripts:
+    description: "Working directory when running npm scripts"
+    default: "."
+
+  working-directory-install:
+    description: "Working directory when installing dependencies. default = working-directory-scripts"
+    default: ""
+
+  lint-script:
+    description: "Lint npm script name"
+    default: "lint"
+  pre-build-command:
+    description: "Pre build command"
+    default: "exit 0"
+  build-script:
+    description: "Build npm script name"
+    default: "build"
+  post-install-command:
+    description: "Post install command"
+    default: "exit 0"
+  test-script:
+    description: "Test npm script name"
+    default: "test"
+
+  skip-install:
+    description: "Skip install"
+    default: "false"
+  skip-lint:
+    description: "Skip lint"
+    default: "false"
+  skip-build:
+    description: "Skip build"
+    default: "false"
+  skip-test:
+    description: "Skip test"
+    default: "false"
+
+  build-artifacts:
+    description: "Build artifacts (leave empty to disable uploading)"
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: On unsupported package manager
+      if: ${{ inputs.package-manager != 'npm' && inputs.package-manager != 'yarn' }}
+      shell: bash
+      run: |-
+        echo "Unsupported package manager: ${{ inputs.package-manager }}"
+        exit 1
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.package-manager }}
+        cache-dependency-path: ${{ inputs.cache-lockfile-path }}
+
+    - name: Install dependencies (with npm)
+      shell: bash
+      if: ${{ inputs.skip-install == 'false' && inputs.package-manager == 'npm' }}
+      run: npm ci
+      working-directory: ${{ inputs.working-directory-install || inputs.working-directory-scripts }}
+
+    - name: Install dependencies (with yarn)
+      shell: bash
+      if: ${{ inputs.skip-install == 'false' && inputs.package-manager == 'yarn' }}
+      run: yarn install --frozen-lockfile
+      working-directory: ${{ inputs.working-directory-install || inputs.working-directory-scripts }}
+
+    - name: Lint
+      if: ${{ inputs.skip-lint == 'false' }}
+      shell: bash
+      run: |-
+        set -euo pipefail
+        ${{ inputs.package-manager }} run ${{ inputs.lint-script }}
+      working-directory: ${{ inputs.working-directory-scripts }}
+
+    - name: Build
+      if: ${{ inputs.skip-build == 'false' }}
+      shell: bash
+      run: |-
+        set -euo pipefail
+        ${{ inputs.package-manager }} run ${{ inputs.build-script }}
+      working-directory: ${{ inputs.working-directory-scripts }}
+
+    - name: Test
+      if: ${{ inputs.skip-test == 'false' }}
+      shell: bash
+      run: |-
+        set -euo pipefail
+        ${{ inputs.package-manager }} run ${{ inputs.test-script }}
+      working-directory: ${{ inputs.working-directory-scripts }}
+
+    - name: Upload coverage
+      if: ${{ inputs.skip-test == 'false' }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage
+        path: coverage
+        retention-days: 1
+        if-no-files-found: error
+      working-directory: ${{ inputs.working-directory-scripts }}
+
+    - name: Upload build
+      if: ${{ inputs.skip-build == 'false' && inputs.build-artifacts != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: build
+        path: ${{ inputs.build-artifacts }}
+        retention-days: 7
+        if-no-files-found: error
