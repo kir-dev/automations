@@ -89,9 +89,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+    
+      - name: Checkout automations repository
+        uses: actions/checkout@v4
+        with:
+          repository: kir-dev/automations
+          path: automations
+      
+      - run: ls -la && tree
 
       - name: Node CI
-        uses: ./actions/node-ci
+        uses: ./automations/actions/node-ci
         with:
           node-version: ${{ inputs.node-version }}
           package-manager: ${{ inputs.package-manager }}
