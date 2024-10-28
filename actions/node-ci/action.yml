@@ -51,10 +51,6 @@ inputs:
     description: "Skip test"
     default: "false"
   
-  gh-comment-token:
-    description: "GitHub token for posting comments"
-    default: ""
-
   test-coverage-path:
     description: "Test coverage files path (leave empty to disable uploading)"
     default: ""
