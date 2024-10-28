@@ -116,7 +116,6 @@ runs:
         path: coverage
         retention-days: 1
         if-no-files-found: error
-      working-directory: ${{ inputs.working-directory-scripts }}
 
     - name: Upload build
       if: ${{ inputs.skip-build == 'false' && inputs.build-artifacts != '' }}
