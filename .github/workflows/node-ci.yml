@@ -55,10 +55,6 @@ on:
         description: "Test npm script name"
         default: "test"
 
-      skip-install:
-        type: boolean
-        description: "Skip install"
-        default: false
       skip-lint:
         type: boolean
         description: "Skip lint"
@@ -70,7 +66,7 @@ on:
       skip-test:
         type: boolean
         description: "Skip test"
-        default: false
+        default: true
 
       test-coverage-path:
         type: string
@@ -83,23 +79,15 @@ on:
         default: ""
 
 jobs:
-  node-ci:
+  lint:
     runs-on: ubuntu-latest
+    if: ! inputs.skip-lint
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-    
-      - name: Checkout automations repository
-        uses: actions/checkout@v4
-        with:
-          repository: kir-dev/automations
-          path: automations
-      
-      - run: ls -la && tree
 
-      - name: Node CI
-        uses: kir-dev/automations/actions/node-ci@node-ci
+      - uses: kir-dev/automations/actions/node-ci@node-ci
         with:
           node-version: ${{ inputs.node-version }}
           package-manager: ${{ inputs.package-manager }}
@@ -107,13 +95,50 @@ jobs:
           working-directory-scripts: ${{ inputs.working-directory-scripts }}
           working-directory-install: ${{ inputs.working-directory-install }}
           lint-script: ${{ inputs.lint-script }}
+          post-install-command: ${{ inputs.post-install-command }}
+          skip-build: true
+          skip-test: true
+          skip-lint: false
+  test:
+    runs-on: ubuntu-latest
+    if: ! inputs.skip-test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: kir-dev/automations/actions/node-ci@node-ci
+        with:
+          node-version: ${{ inputs.node-version }}
+          package-manager: ${{ inputs.package-manager }}
+          cache-lockfile-path: ${{ inputs.cache-lockfile-path }}
+          working-directory-scripts: ${{ inputs.working-directory-scripts }}
+          working-directory-install: ${{ inputs.working-directory-install }}
+          post-install-command: ${{ inputs.post-install-command }}
+          test-script: ${{ inputs.test-script }}
+          skip-lint: true
+          skip-build: true
+          skip-test: false
+          test-coverage-path: ${{ inputs.test-coverage-path }}
+  build:
+    if: ! inputs.skip-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: kir-dev/automations/actions/node-ci@node-ci
+        with:
+          node-version: ${{ inputs.node-version }}
+          package-manager: ${{ inputs.package-manager }}
+          cache-lockfile-path: ${{ inputs.cache-lockfile-path }}
+          working-directory-scripts: ${{ inputs.working-directory-scripts }}
+          working-directory-install: ${{ inputs.working-directory-install }}
           pre-build-command: ${{ inputs.pre-build-command }}
           build-script: ${{ inputs.build-script }}
           post-install-command: ${{ inputs.post-install-command }}
-          test-script: ${{ inputs.test-script }}
-          skip-install: ${{ inputs.skip-install }}
-          skip-lint: ${{ inputs.skip-lint }}
-          skip-build: ${{ inputs.skip-build }}
-          skip-test: ${{ inputs.skip-test }}
-          test-coverage-path: ${{ inputs.test-coverage-path }}
+          skip-lint: true
+          skip-test: true
+          skip-build: false
           build-artifacts-path: ${{ inputs.build-artifacts-path }}
