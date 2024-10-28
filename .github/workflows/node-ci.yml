@@ -1,0 +1,144 @@
+name: Node CI
+
+on:
+  workflow_call:
+    # Inputs the workflow accepts.
+
+    inputs:
+      node-version:
+        type: string
+        description: "Node version"
+        required: true
+
+      package-manager:
+        type: string
+        description: "The package manager to use (npm or yarn)"
+        required: true
+
+      cache-lockfile-path:
+        type: string
+        description: "Path to the lockfile that will be used as cache key"
+        default: ""
+
+      working-directory-scripts:
+        type: string
+        description: "Working directory when running npm scripts"
+        default: "."
+
+      working-directory-install:
+        type: string
+        description: "Working directory when installing dependencies. default = working-directory-scripts"
+        default: ""
+
+      lint-script:
+        type: string
+        description: "Lint npm script name"
+        default: "lint"
+
+      pre-build-command:
+        type: string
+        description: "Pre build command"
+        default: "exit 0"
+
+      build-script:
+        type: string
+        description: "Build npm script name"
+        default: "build"
+
+      post-install-command:
+        type: string
+        description: "Post install command"
+        default: "exit 0"
+
+      test-script:
+        type: string
+        description: "Test npm script name"
+        default: "test"
+
+      skip-lint:
+        type: boolean
+        description: "Skip lint"
+        default: false
+      skip-build:
+        type: boolean
+        description: "Skip build"
+        default: false
+      skip-test:
+        type: boolean
+        description: "Skip test"
+        default: true
+
+      test-coverage-path:
+        type: string
+        description: "Test coverage files path (leave empty to disable uploading)"
+        default: ""
+
+      build-artifacts-path:
+        type: string
+        description: "Build artifacts path (leave empty to disable uploading)"
+        default: ""
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    if: inputs.skip-lint != true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: kir-dev/automations/actions/node-ci@node-ci
+        with:
+          node-version: ${{ inputs.node-version }}
+          package-manager: ${{ inputs.package-manager }}
+          cache-lockfile-path: ${{ inputs.cache-lockfile-path }}
+          working-directory-scripts: ${{ inputs.working-directory-scripts }}
+          working-directory-install: ${{ inputs.working-directory-install }}
+          lint-script: ${{ inputs.lint-script }}
+          post-install-command: ${{ inputs.post-install-command }}
+          skip-build: true
+          skip-test: true
+          skip-lint: false
+  test:
+    runs-on: ubuntu-latest
+    if: inputs.skip-test != true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: kir-dev/automations/actions/node-ci@node-ci
+        with:
+          node-version: ${{ inputs.node-version }}
+          package-manager: ${{ inputs.package-manager }}
+          cache-lockfile-path: ${{ inputs.cache-lockfile-path }}
+          working-directory-scripts: ${{ inputs.working-directory-scripts }}
+          working-directory-install: ${{ inputs.working-directory-install }}
+          post-install-command: ${{ inputs.post-install-command }}
+          test-script: ${{ inputs.test-script }}
+          skip-lint: true
+          skip-build: true
+          skip-test: false
+          test-coverage-path: ${{ inputs.test-coverage-path }}
+  build:
+    if: inputs.skip-build != true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: kir-dev/automations/actions/node-ci@node-ci
+        with:
+          node-version: ${{ inputs.node-version }}
+          package-manager: ${{ inputs.package-manager }}
+          cache-lockfile-path: ${{ inputs.cache-lockfile-path }}
+          working-directory-scripts: ${{ inputs.working-directory-scripts }}
+          working-directory-install: ${{ inputs.working-directory-install }}
+          pre-build-command: ${{ inputs.pre-build-command }}
+          build-script: ${{ inputs.build-script }}
+          post-install-command: ${{ inputs.post-install-command }}
+          skip-lint: true
+          skip-test: true
+          skip-build: false
+          build-artifacts-path: ${{ inputs.build-artifacts-path }}
