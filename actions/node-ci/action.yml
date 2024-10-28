@@ -110,7 +110,7 @@ runs:
 
     - name: Upload coverage
       if: ${{ inputs.skip-test == 'false' }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: coverage
         path: coverage
