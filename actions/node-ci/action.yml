@@ -120,26 +120,21 @@ runs:
         echo "log-file=$LOG_FILE" >> $GITHUB_OUTPUT
       working-directory: ${{ inputs.working-directory-scripts }}
 
-    - name: Test results to action
+    - name: Comment Test results to action
       if: steps.test.outputs.log-file != '' && always()
       shell: bash
       run: cat ${{ steps.test.outputs.log-file }} >> $GITHUB_STEP_SUMMARY
       continue-on-error: true
     
-    - name: Test result to PR
+    - name: Comment Test result to PR
       if: steps.test.outputs.log-file != '' && github.event_name == 'pull_request' && inputs.gh-comment-token != '' && always()
-      env:
-        URL: ${{ github.event.issue.comments_url }}
-        GITHUB_TOKEN: ${{ inputs.gh-comment-token }}
-      shell: bash
-      continue-on-error: true
-      run: |
-        curl \
-        -x POST \
-        "$URL" \
-        -H "Content-Type: application/json" \
-        -H "Authorization: token $GITHUB_TOKEN" \
-        --data "{ \"body\": \"```\n$(cat ${{ steps.test.outputs.log-file }})\n```\" }"
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        body: |
+          Test results:
+          ${{ steps.test.outputs.log-file }}
+        token: ${{ inputs.gh-comment-token }}
 
     - name: Upload coverage
       if: inputs.skip-test == 'false' && inputs.test-coverage-path != '' && always()
