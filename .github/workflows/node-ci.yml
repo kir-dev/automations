@@ -81,7 +81,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    if: inputs.skip-lint != 'true'
+    if: inputs.skip-lint != true
 
     steps:
       - name: Checkout repository
@@ -101,7 +101,7 @@ jobs:
           skip-lint: false
   test:
     runs-on: ubuntu-latest
-    if: inputs.skip-test != 'true'
+    if: inputs.skip-test != true
 
     steps:
       - name: Checkout repository
@@ -121,7 +121,7 @@ jobs:
           skip-test: false
           test-coverage-path: ${{ inputs.test-coverage-path }}
   build:
-    if: inputs.skip-build != 'true'
+    if: inputs.skip-build != true
     runs-on: ubuntu-latest
 
     steps:
