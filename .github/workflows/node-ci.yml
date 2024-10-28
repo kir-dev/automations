@@ -72,9 +72,14 @@ on:
         description: "Skip test"
         default: false
 
-      build-artifacts:
+      test-coverage-path:
         type: string
-        description: "Build artifacts location (leave empty to disable uploading)"
+        description: "Test coverage files path (leave empty to disable uploading)"
+        default: ""
+
+      build-artifacts-path:
+        type: string
+        description: "Build artifacts path (leave empty to disable uploading)"
         default: ""
 
 jobs:
@@ -102,4 +107,5 @@ jobs:
           skip-lint: ${{ inputs.skip-lint }}
           skip-build: ${{ inputs.skip-build }}
           skip-test: ${{ inputs.skip-test }}
-          build-artifacts: ${{ inputs.build-artifacts }}
+          test-coverage-path: ${{ inputs.test-coverage-path }}
+          build-artifacts-path: ${{ inputs.build-artifacts-path }}
