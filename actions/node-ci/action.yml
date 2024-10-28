@@ -50,6 +50,10 @@ inputs:
   skip-test:
     description: "Skip test"
     default: "false"
+  
+  gh-comment-token:
+    description: "GitHub token for posting comments"
+    default: ""
 
   test-coverage-path:
     description: "Test coverage files path (leave empty to disable uploading)"
@@ -63,7 +67,7 @@ runs:
   using: "composite"
   steps:
     - name: On unsupported package manager
-      if: ${{ inputs.package-manager != 'npm' && inputs.package-manager != 'yarn' }}
+      if: inputs.package-manager != 'npm' && inputs.package-manager != 'yarn'
       shell: bash
       run: |-
         echo "Unsupported package manager: ${{ inputs.package-manager }}"
@@ -78,18 +82,18 @@ runs:
 
     - name: Install dependencies (with npm)
       shell: bash
-      if: ${{ inputs.skip-install == 'false' && inputs.package-manager == 'npm' }}
+      if: inputs.skip-install == 'false' && inputs.package-manager == 'npm'
       run: npm ci
       working-directory: ${{ inputs.working-directory-install || inputs.working-directory-scripts }}
 
     - name: Install dependencies (with yarn)
       shell: bash
-      if: ${{ inputs.skip-install == 'false' && inputs.package-manager == 'yarn' }}
+      if: inputs.skip-install == 'false' && inputs.package-manager == 'yarn'
       run: yarn install --frozen-lockfile
       working-directory: ${{ inputs.working-directory-install || inputs.working-directory-scripts }}
 
     - name: Lint
-      if: ${{ inputs.skip-lint == 'false' }}
+      if: inputs.skip-lint == 'false'
       shell: bash
       run: |-
         set -euo pipefail
@@ -97,7 +101,7 @@ runs:
       working-directory: ${{ inputs.working-directory-scripts }}
 
     - name: Build
-      if: ${{ inputs.skip-build == 'false' }}
+      if: inputs.skip-build == 'false'
       shell: bash
       run: |-
         set -euo pipefail
@@ -106,7 +110,7 @@ runs:
 
     - name: Test
       id: test
-      if: ${{ inputs.skip-test == 'false' }}
+      if: inputs.skip-test == 'false'
       env:
         LOG_FILE: ${{ runner.temp }}/test-output.txt
       shell: bash
@@ -117,16 +121,16 @@ runs:
       working-directory: ${{ inputs.working-directory-scripts }}
 
     - name: Test results to action
-      if: ${{ steps.test.outputs.log-file != '' }} && always()
+      if: steps.test.outputs.log-file != '' && always()
       shell: bash
       run: cat ${{ steps.test.outputs.log-file }} >> $GITHUB_STEP_SUMMARY
       continue-on-error: true
     
     - name: Test result to PR
-      if: ${{ steps.test.outputs.log-file != '' }} && github.event_name == 'pull_request' && always()
+      if: steps.test.outputs.log-file != '' && github.event_name == 'pull_request' && inputs.gh-comment-token != '' && always()
       env:
         URL: ${{ github.event.issue.comments_url }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.gh-comment-token }}
       shell: bash
       continue-on-error: true
       run: |
@@ -138,7 +142,7 @@ runs:
         --data '{ "body": "```\n$(cat ${{ steps.test.outputs.log-file }})\n```" }'
 
     - name: Upload coverage
-      if: ${{ inputs.skip-test }} == 'false' && ${{ inputs.test-coverage-path }} != ''}} && always()
+      if: inputs.skip-test == 'false' && inputs.test-coverage-path != '' && always()
       uses: actions/upload-artifact@v4
       with:
         name: coverage
@@ -147,7 +151,7 @@ runs:
         if-no-files-found: error
 
     - name: Upload build
-      if: ${{ inputs.skip-build == 'false' && inputs.build-artifacts-path != '' }} && always()
+      if: inputs.skip-build == 'false' &&  inputs.build-artifacts-path != '' && always()
       uses: actions/upload-artifact@v4
       with:
         name: build
