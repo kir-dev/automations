@@ -109,8 +109,13 @@ runs:
       shell: bash
       run: |-
         set -euo pipefail
-        ${{ inputs.package-manager }} run ${{ inputs.test-script }}
+        ${{ inputs.package-manager }} run ${{ inputs.test-script }} > ${{ runner.temp }}/test-output.txt
       working-directory: ${{ inputs.working-directory-scripts }}
+
+    - name: Test results
+      shell: bash
+      run: cat ${{ runner.temp }}/test-output.txt >> $GITHUB_STEP_SUMMARY
+      continue-on-error: true
 
     - name: Upload coverage
       if: ${{ inputs.skip-test == 'false' && inputs.test-coverage-path != ''}}
