@@ -99,7 +99,7 @@ jobs:
       - run: ls -la && tree
 
       - name: Node CI
-        uses: ./automations/actions/node-ci
+        uses: kir-dev/automations/actions/node-ci@node-ci
         with:
           node-version: ${{ inputs.node-version }}
           package-manager: ${{ inputs.package-manager }}
