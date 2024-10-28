@@ -51,8 +51,12 @@ inputs:
     description: "Skip test"
     default: "false"
 
-  build-artifacts:
-    description: "Build artifacts (leave empty to disable uploading)"
+  test-coverage-path:
+    description: "Test coverage files path (leave empty to disable uploading)"
+    default: ""
+
+  build-artifacts-path:
+    description: "Build artifacts path (leave empty to disable uploading)"
     default: ""
 
 runs:
@@ -109,19 +113,19 @@ runs:
       working-directory: ${{ inputs.working-directory-scripts }}
 
     - name: Upload coverage
-      if: ${{ inputs.skip-test == 'false' }}
+      if: ${{ inputs.skip-test == 'false' && inputs.test-coverage-path != ''}}
       uses: actions/upload-artifact@v4
       with:
         name: coverage
-        path: coverage
-        retention-days: 1
+        path: ${{ inputs.test-coverage-path}}
+        retention-days: 7
         if-no-files-found: error
 
     - name: Upload build
-      if: ${{ inputs.skip-build == 'false' && inputs.build-artifacts != '' }}
+      if: ${{ inputs.skip-build == 'false' && inputs.build-artifacts-path != '' }}
       uses: actions/upload-artifact@v4
       with:
         name: build
-        path: ${{ inputs.build-artifacts }}
+        path: ${{ inputs.build-artifacts-path }}
         retention-days: 7
         if-no-files-found: error
