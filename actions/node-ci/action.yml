@@ -16,7 +16,7 @@ inputs:
 
   working-directory-scripts:
     description: "Working directory when running npm scripts"
-    default: "."
+    default: "./"
 
   working-directory-install:
     description: "Working directory when installing dependencies. default = working-directory-scripts"
