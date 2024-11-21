@@ -70,21 +70,14 @@ jobs:
             const output = `#### Terraform Format and Style 🖌\`${process.env.FMT_OUTCOME}\`
             #### Terraform Initialization ⚙️\`${process.env.INIT_OUTCOME}\`
             #### Terraform Validation 🤖\`${process.env.VALIDATE_OUTCOME}\`
-            <details><summary>Validation Output</summary>
-
-            \`\`\`\n
-            ${process.env.VALIDATION_OUTPUT}
             \`\`\`
-
-            </details>
+            ${process.env.VALIDATION_OUTPUT}\`\`\`
 
             #### Terraform Plan 📖\`${process.env.PLAN_OUTCOME}\`
 
             <details><summary>Show Plan</summary>
 
             \`\`\`\n
-            terraform
-
             ${process.env.PLAN}
             \`\`\`
 
