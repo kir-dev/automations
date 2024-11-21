@@ -66,8 +66,7 @@ jobs:
           VALIDATION_OUTPUT: "${{ steps.validate.outputs.stdout }}"
 
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |+
+          script: |
             const output = `#### Terraform Format and Style 🖌\`${process.env.FMT_OUTCOME}\`
             #### Terraform Initialization ⚙️\`${process.env.INIT_OUTCOME}\`
             #### Terraform Validation 🤖\`${process.env.VALIDATE_OUTCOME}\`
