@@ -1,10 +1,10 @@
 on:
   workflow_call:
-    inputs:
-      tfe-hostname:
-        required: false
-        description: Terraform Enterprise hostname (optional)
-        type: string
+    # inputs:
+    #   tfe-hostname:
+    #     required: false
+    #     description: Terraform Enterprise hostname (optional)
+    #     type: string
     secrets:
       TF_TOKEN_APP_TERRAFORM_IO:
         required: false
@@ -20,7 +20,7 @@ jobs:
     
     env:
       TFE_TOKEN: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
-      TFE_HOSTNAME: ${{ inputs.tfe-hostname }}
+      # TFE_HOSTNAME: ${{ inputs.tfe-hostname }}
       GH_TOKEN: ${{ github.token }}
 
     steps:
@@ -30,7 +30,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           cli_config_credentials_token: ${{ env.TFE_TOKEN }}
-          cli_config_credentials_hostname: ${{ env.TFE_HOSTNAME }}
+          # cli_config_credentials_hostname: ${{ env.TFE_HOSTNAME || null }}
 
       - name: Terraform fmt
         id: fmt
