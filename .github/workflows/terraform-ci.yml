@@ -57,9 +57,12 @@ jobs:
           PLAN_EXITCODE: ${{ steps.plan.outcome }}
         run: |
           echo "# Terraform Plan" >> "$GITHUB_STEP_SUMMARY"
+          echo "```" >> "$GITHUB_STEP_SUMMARY"
           echo "Exit code: $PLAN_EXITCODE" >> "$GITHUB_STEP_SUMMARY"
           echo "$PLAN_STDOUT" >> "$GITHUB_STEP_SUMMARY"
           echo "$PLAN_STDERR" >> "$GITHUB_STEP_SUMMARY"
+          echo "```" >> "$GITHUB_STEP_SUMMARY"
+
 
       - name: Terraform Plan Error
         run: echo ${{ steps.plan.outputs.stderr }}
