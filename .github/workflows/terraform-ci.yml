@@ -14,7 +14,7 @@ jobs:
       pull-requests: write
     
     env:
-      TFE_TOKEN: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+      TF_TOKEN_APP_TERRAFORM_IO: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
       GH_TOKEN: ${{ github.token }}
 
     steps:
