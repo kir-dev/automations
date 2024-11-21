@@ -49,6 +49,17 @@ jobs:
         id: plan
         run: terraform plan -no-color
         continue-on-error: true
+      
+      - name: Plan to step summary
+        env:
+          PLAN_STDOUT: ${{ steps.plan.outputs.stdout }}
+          PLAN_STDERR: ${{ steps.plan.outputs.stderr }}
+          PLAN_EXITCODE: ${{ steps.plan.outcome }}
+        run: |
+          echo "# Terraform Plan" >> "$GITHUB_STEP_SUMMARY"
+          echo "Exit code: $PLAN_EXITCODE" >> "$GITHUB_STEP_SUMMARY"
+          echo "$PLAN_STDOUT" >> "$GITHUB_STEP_SUMMARY"
+          echo "$PLAN_STDERR" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Terraform Plan Error
         run: echo ${{ steps.plan.outputs.stderr }}
@@ -78,7 +89,7 @@ jobs:
             <details><summary>Show Plan</summary>
 
             \`\`\`\n
-            ${process.env.PLAN}
+            ${process.env.PLAN?.trim()}
             \`\`\`
 
             </details>`
