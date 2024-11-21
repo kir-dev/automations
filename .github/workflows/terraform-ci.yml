@@ -1,14 +1,9 @@
 on:
   workflow_call:
-    inputs:
+    secrets:
       TF_TOKEN_APP_TERRAFORM_IO:
         required: false
-        type: string
         description: Terraform Cloud token for Terraform App (optional)
-      GH_TOKEN:
-        required: false
-        type: string
-        description: GitHub token for commenting on PRs (optional)
 
 jobs:
   terraform-plan:
@@ -19,8 +14,8 @@ jobs:
       pull-requests: write
     
     env:
-      TFE_TOKEN: ${{ inputs.TF_TOKEN_APP_TERRAFORM_IO || secrets.TF_TOKEN_APP_TERRAFORM_IO }}
-      GH_TOKEN: ${{ inputs.GH_TOKEN || github.token }}
+      TFE_TOKEN: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+      GH_TOKEN: ${{ github.token }}
 
     steps:
       - uses: actions/checkout@v4
