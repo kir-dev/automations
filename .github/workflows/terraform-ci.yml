@@ -1,5 +1,10 @@
 on:
   workflow_call:
+    inputs:
+      tfe-hostname:
+        required: false
+        description: Terraform Enterprise hostname (optional)
+        type: string
     secrets:
       TF_TOKEN_APP_TERRAFORM_IO:
         required: false
@@ -14,12 +19,18 @@ jobs:
       pull-requests: write
     
     env:
-      TF_TOKEN_APP_TERRAFORM_IO: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+      TFE_TOKEN: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+      TFE_HOSTNAME: ${{ inputs.tfe-hostname }}
       GH_TOKEN: ${{ github.token }}
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ env.TFE_TOKEN }}
+          cli_config_credentials_hostname: ${{ env.TFE_HOSTNAME }}
 
       - name: Terraform fmt
         id: fmt
