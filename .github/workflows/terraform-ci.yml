@@ -10,10 +10,6 @@ on:
         type: string
         description: GitHub token for commenting on PRs (optional)
 
-env:
-  TFE_TOKEN: ${{ inputs.TF_TOKEN_APP_TERRAFORM_IO || secrets.TF_TOKEN_APP_TERRAFORM_IO }}
-  GH_TOKEN: ${{ inputs.GH_TOKEN || secrets.GITHUB_TOKEN }}
-
 jobs:
   terraform-plan:
     name: Terraform Plan
@@ -21,6 +17,10 @@ jobs:
 
     permissions:
       pull-requests: write
+    
+    env:
+      TFE_TOKEN: ${{ inputs.TF_TOKEN_APP_TERRAFORM_IO || secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+      GH_TOKEN: ${{ inputs.GH_TOKEN || github.token }}
 
     steps:
       - uses: actions/checkout@v4
